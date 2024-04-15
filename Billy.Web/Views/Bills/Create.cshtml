@@ -1,0 +1,309 @@
+﻿@using Billy.Web.ViewModel;
+@model BillViewModel
+
+<div data-backdrop="static" data-keyboard="false" class="modal fade" id="BillModel"
+     tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="saveForm" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Bill Receipt</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label id="billno"></label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="CloseModal()" type="button" class="btn btn-secondary btnCancel" data-dismiss="modal">Close</button>
+                    <button onclick="printReceipt()" id="btnReceipt" type="button" class="btn btn-primary">Print Receipt</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<form asp-action="Create">
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label asp-for="CustomerName" class="control-label"></label>
+                <input asp-for="CustomerName" class="form-control"></input>
+                <span asp-validation-for="CustomerName" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="col-4">
+            <div class="form-group">
+                <label asp-for="PaymentType" class="control-label"></label>
+                <select asp-for="PaymentType" asp-items="Html.GetEnumSelectList<PaymentType>()" class="form-control">
+                    <option>Please select payment type</option>
+                </select>
+                <span asp-validation-for="PaymentType" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="col-4">
+            <div class="form-group">
+                <label asp-for="GrandTotal" class="control-label"></label>
+                <input readonly asp-for="GrandTotal" class="form-control"></input>
+                <span asp-validation-for="GrandTotal" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label asp-for="ItemId" class="control-label"></label>
+                <select asp-for="ItemId" asp-items="@ViewBag.ItemsList" class="form-control">
+                    <option>Please select item</option>
+                </select>
+                <span asp-validation-for="ItemId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label asp-for="ItemPrice" class="control-label"></label>
+                <input readonly asp-for="ItemPrice" class="form-control" />
+                <span asp-validation-for="ItemPrice" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label asp-for="Quantity" class="control-label"></label>
+                <input asp-for="Quantity" class="form-control"></input>
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label asp-for="Discount" class="control-label"></label>
+                <input asp-for="Discount" class="form-control"></input>
+                <span asp-validation-for="Discount" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label asp-for="Total" class="control-label"></label>
+                <input readonly asp-for="Total" class="form-control"></input>
+                <span asp-validation-for="Total" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-3">
+            <input type="button" onclick="AddItemToList()" value="Save to List" class="btn btn-primary" />
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <table id="billTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th hidden>
+                        Item Id
+                    </th>
+                    <th>
+                        Item Name
+                    </th>
+                    <th>
+                        Item Price
+                    </th>
+                    <th>
+                        Quantity
+                    </th>
+                    <th>
+                        Discount
+                    </th>
+                    <th>
+                        Total
+                    </th>
+                    <th>
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</form>
+<div>
+    <a class="btn btn-success" onclick="saveItemsInDB()">Final Submit</a>
+
+</div>
+
+@section scripts {
+    <script>
+        var listItem = [];
+
+        $(document).ready(function () {
+            $("#ItemId").change(function () {
+                var itemId = $("#ItemId").val();
+                GetPrice(itemId);
+                CalculateTotal();
+            })
+            $("#Quantity,#Discount").change(function () { CalculateTotal() });
+        })
+
+        function GetPrice(ItemId) {
+            $.ajax({
+                method: "Get",
+                url: "/Bills/GetPrice",
+                data: { id: ItemId },
+                success: function (data) {
+                    $("#ItemPrice").val(parseFloat(data).toFixed(2))
+                },
+                error: function (data) { }
+            })
+        }
+
+        function CalculateTotal() {
+            var price = $("#ItemPrice").val();
+            var qty = $("#Quantity").val();
+            var discount = $("#Discount").val();
+            var subTotal = (price * qty);
+            var total = (subTotal) - ((subTotal * discount) / 100);
+            $("#Total").val(parseFloat(total).toFixed(2));
+        }
+
+        function AddItemToList() {
+            var ItemId = $("#ItemId").val();
+            var ItemName = $("#ItemId option:selected").text();
+            var ItemPrice = $("#ItemPrice").val();
+            var ItemQuantity = $("#Quantity").val();
+            var ItemDiscount = $("#Discount").val();
+            var ItemTotal = $("#Total").val();
+
+            var obj = {
+                itemId: ItemId,
+                itemName: ItemName,
+                itemPrice: ItemPrice,
+                itemQuantity: ItemQuantity,
+                itemDiscount: ItemDiscount,
+                itemTotal: ItemTotal
+            }
+            if (listItem.length > 0) {
+                var index = GetObjectIndexById(obj.itemId, listItem);
+                if (index == undefined || index == -1) {
+                    listItem.push(obj);
+                    CreateTableRow(ItemId, ItemName, ItemPrice, ItemQuantity, ItemDiscount, ItemTotal);
+                    CalculateGrandTotal();
+                }
+                else {
+                    listItem[index].itemQuantity = parseInt(obj.itemQuantity) + parseInt(listItem[index].itemQuantity);
+                    var subtotal = parseFloat(ItemPrice * listItem[index].itemQuantity);
+                    listItem[index].itemTotal = parseFloat(subtotal) - parseFloat((subtotal * ItemDiscount) / 100);
+                    replaceTableCell(ItemId, listItem[index].itemQuantity, listItem[index].itemTotal);
+                    CalculateGrandTotal();
+                }
+            }
+            else {
+                listItem.push(obj);
+                CreateTableRow(ItemId, ItemName, ItemPrice, ItemQuantity, ItemDiscount, ItemTotal);
+                CalculateGrandTotal();
+            }
+        }
+
+        function replaceTableCell(itemId, qty, total) {
+            $("#billTable").find("tr:gt(0)").each(function () {
+                if ($(this).find("td:eq(0)").text() == itemId) {
+                    $(this).find("td:eq(3)").text(qty);
+                    $(this).find("td:eq(5)").text(total);
+                }
+            })
+        }
+
+        function CreateTableRow(ItemId, ItemName, ItemPrice, ItemQuantity, ItemDiscount, ItemTotal) {
+            var row = `<tr class="text-start"><td hidden>${ItemId}</td>
+                            <td class="ps-1">${ItemName}</td>
+                            <td class="ps-1">${ItemPrice}</td>
+                            <td class="ps-1">${ItemQuantity}</td>
+                            <td class="ps-1">${ItemDiscount}</td>
+                            <td class="ps-1">${ItemTotal}</td>
+                            <td><a onclick="RemoveItem(this,${ItemId})" class="btn btn-danger">Remove Item</a> |
+                                            <a onclick="DecrementQty(this,${ItemId})" class="btn btn-warning">Decrement Qty</a>`;
+            $("#billTable").append(row);
+        }
+
+        function CalculateGrandTotal() {
+            var finalResult = 0.00;
+            $("#billTable").find("tr:gt(0)").each(function () {
+                var total = $(this).find("td:eq(5)").text();
+                finalResult += parseFloat(total);
+            });
+            $("#GrandTotal").val(parseFloat(finalResult).toFixed(2));
+        }
+
+        function DecrementQty(currentObj, itemId) {
+            var quantity = $(currentObj).closest('tr').find('td:eq(3)').text();
+            quantity = parseInt(quantity) - 1;
+
+            var price = $(currentObj).closest('tr').find('td:eq(2)').text();
+            var dis = $(currentObj).closest('tr').find('td:eq(4)').text();
+            var subTotal = parseFloat(price * dis);
+            var finalTotal = parseFloat(subTotal) - parseFloat((subTotal * dis) / 100);
+            $(currentObj).closest('tr').find('td:eq(5)').text(finalTotal);
+            $(currentObj).closest('tr').find('td:eq(3)').text(quantity);
+
+            CalculateGrandTotal();
+        }
+
+        function RemoveItem(currentObj, id) {
+            var index = GetObjectIndexById(id, listItem);
+            if (index != undefined || index != -1) {
+
+                listItem.splice(index, 1);
+            }
+            $(currentObj).closest('tr').remove();
+            CalculateGrandTotal();
+
+        }
+        function GetObjectIndexById(id, listItems) {
+            var index = -1;
+            $.each(listItems, function (i, arrayItem) {
+                if (parseInt(arrayItem.itemId) == id) {
+                    index = i;
+                    return index;
+                }
+            });
+            return index;
+
+        }
+
+        saveItemsInDB = function () {
+            var customer = $("#CustomerName").val();
+            var paymentType = $("#PaymentType").val();
+            var finalPayment = $("#GrandTotal").val();
+
+            var itemModel = {
+                CustomerName: customer,
+                items: listItem,
+                GrandTotal: finalPayment
+
+            };
+            $.post('/bills/SaveItems', { vm: itemModel }, function (res) {
+                $("#BillModel").modal({ backdrop: 'static', keyboard: false })
+                $("#BillModel").modal('show');
+
+                $('#billno').html(res);
+            });
+        }
+
+        printReceipt = function () {
+            $("#BillModel").printThis();
+        }
+        CloseModal = function () {
+            $("#BillModel").modal('hide');
+        }
+    </script>
+}

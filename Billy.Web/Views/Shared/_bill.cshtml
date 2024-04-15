@@ -1,0 +1,58 @@
+﻿@model BillReceiptViewModel
+
+<div class="row">
+    <div class="col-6">
+    <div class="row">
+        Bill Number :#@Model.BillNumber
+    </div>
+       <div class="row">
+       From Address :#@Model.FromAddress
+    </div>
+      
+    </div>
+    <div class="col-6">
+      <div class="row">
+        CustomerName :@Model.CustomerName
+    </div>
+       <div class="row">
+       Total Payment :@Model.TotalAmount USD
+    </div>
+    </div>
+</div>
+<div class="row">
+    <table class="table table-striped">
+        <thead><tr>
+            <th>
+                Item Number
+            </th>
+              <th>
+                Item Name
+            </th>
+               <th>
+                Price
+            </th>
+               <th>
+                Quantity
+            </th>
+                <th>
+                Dis.(%)
+            </th>
+                 <th>
+                Total
+            </th>
+            </tr>
+        </thead>
+        @foreach (var item in @Model.BillDetails)
+        {
+            <tr>
+                <td>@item.ItemId</td>
+                 <td>@item.ItemName</td>
+                  <td>@item.Price</td>
+                   <td>@item.Quantity</td>
+                    <td>@item.Discount</td>
+                     <td>@item.Total</td>
+            </tr>
+        }
+    </table>
+</div>
+

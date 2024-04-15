@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\SEDYAULUCAY\\Desktop\\Projects\\Billy\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C1F22CD5-2585-4330-9967-6C671F42FEBE}|Billy.Web\\Billy.Web.csproj|c:\\users\\sedyaulucay\\desktop\\projects\\billy\\billy.web\\views\\bills\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C1F22CD5-2585-4330-9967-6C671F42FEBE}|Billy.Web\\Billy.Web.csproj|solutionrelative:billy.web\\views\\bills\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\SEDYAULUCAY\\Desktop\\Projects\\Billy\\Billy.Web\\Views\\Bills\\Create.cshtml",
+              "RelativeDocumentMoniker": "Billy.Web\\Views\\Bills\\Create.cshtml",
+              "ToolTip": "C:\\Users\\SEDYAULUCAY\\Desktop\\Projects\\Billy\\Billy.Web\\Views\\Bills\\Create.cshtml",
+              "RelativeToolTip": "Billy.Web\\Views\\Bills\\Create.cshtml",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABgAAAATAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-04-13T14:49:51.812Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
